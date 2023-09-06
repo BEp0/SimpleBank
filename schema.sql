@@ -1,24 +1,22 @@
 begin;
-create table if not exists account (
-    accont_id bigserial primary key,
-    owner varchar(255) not null,
-    balance bigint not null,
-    currency varchar(3) not null,
-    created_at timestamp default NOW(),
-    check(currency in ('USD', 'EUR', 'BR'))
+create table if not exists User (
+    user_id bigserial primary key,
+    name varchar(255) not null,
+    email varchar(255) not null,
+    document varchar(14) not null,
+    balance decimal(12, 2) not null,
+    appurtenance varchar(255) not null
+    check(document in ('CPF', 'CNPJ')),
+    check(balance >= 0),
+    check(appurtenance in ('COMMON', 'MERCHANT'))
 );
-create index idx_owner on account(owner);
+create index idx_user_email on User(email);
+create index idx_user_document on User(document);
 
-create table if not exists entrie (
-    entrie_id bigserial primary key,
-    accont_id bigint references ACCONT(accont_id) not null
+create table if not exists operation (
+    operation_id bigserial primary key,
+    sender_user_id bigint references USER(user_id) not null
+    receiver_user_id bigint references USER(user_id) not null
 );
-create index idx_account_id on entrie(accont_id);
-
-create table if not exists transfer (
-    transfer_id bigserial primary key,
-    from_account_id bigint references account(accont_id) not null,
-    to_account_id bigint references account(accont_id) not null
-);
-create index idx_account_ids on transfer(from_accont_id, to_accont_id);
+create index idx_users_operation on User(sender_user_id, receiver_user_id);
 commit;
